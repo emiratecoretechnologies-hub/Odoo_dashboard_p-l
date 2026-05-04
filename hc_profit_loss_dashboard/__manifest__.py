@@ -5,7 +5,7 @@
     "website": "linkedin.com/in/emiratecore-technologies-4a0519407",
     "category": "Accounting/Accounting",
     "version": "18.0.1.0.0",
-    "license": "LGPL-3",
+    "license": "AGPL-3",
     "depends": ["account", "web", "report_xlsx"],
     "data": [
         "security/ir.model.access.csv",
