@@ -14,25 +14,29 @@ Overview
 Dashboard Overview
 ------------------
 
-.. image:: dashboard_overview.png
+.. image:: ../static/description/dashboard_overview.png
+   :alt: Profit and Loss dashboard overview
    :width: 100%
 
 Monthly View
 ------------
 
-.. image:: monthly_view.png
+.. image:: ../static/description/monthly_view.png
+   :alt: Monthly Profit and Loss dashboard view
    :width: 100%
 
 Yearly View
 -----------
 
-.. image:: yearly_view.png
+.. image:: ../static/description/yearly_view.png
+   :alt: Yearly Profit and Loss dashboard view
    :width: 100%
 
 Filters & Controls
 ------------------
 
-.. image:: filters_section.png
+.. image:: ../static/description/filters_section.png
+   :alt: Profit and Loss dashboard filters and controls
    :width: 100%
 
 Usage

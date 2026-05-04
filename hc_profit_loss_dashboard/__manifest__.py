@@ -13,6 +13,12 @@
         "report/profit_loss_dashboard_actions.xml",
         "views/profit_loss_dashboard_views.xml",
     ],
+    "images": [
+        "static/description/dashboard_overview.png",
+        "static/description/monthly_view.png",
+        "static/description/yearly_view.png",
+        "static/description/filters_section.png",
+    ],
     "assets": {
         "web.assets_backend": [
             "hc_profit_loss_dashboard/static/src/js/profit_loss_dashboard.js",
