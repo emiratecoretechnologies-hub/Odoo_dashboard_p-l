@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="hc_profit_loss_dashboard.Dashboard">
+        <div class="o_hc_pl_dashboard">
+            <div class="o_hc_pl_dashboard__hero">
+                <div class="o_hc_pl_dashboard__heading">
+                    <div class="o_hc_pl_dashboard__eyebrow">Accounting Insight</div>
+                    <h1>Profit &amp; Loss Dashboard</h1>
+                    <p t-if="state.dashboard" t-esc="state.dashboard.meta.period_label"/>
+                    <p t-if="state.dashboard" class="o_hc_pl_dashboard__scope" t-esc="state.dashboard.meta.scope_label"/>
+                </div>
+                <div class="o_hc_pl_dashboard__actions">
+                    <button class="btn btn-outline-secondary" t-on-click="() => this.resetFilters()" t-att-disabled="state.loading">
+                        Reset
+                    </button>
+                    <button class="btn btn-primary" t-on-click="() => this.applyFilters()" t-att-disabled="state.loading">
+                        Apply Filters
+                    </button>
+                </div>
+            </div>
+
+            <div class="o_hc_pl_dashboard__toolbar">
+                <!-- <div class="o_hc_pl_dashboard__filter is-wide">
+                    <label>Companies</label>
+                    <MultiRecordSelector t-props="companySelectorProps"/>
+                </div> -->
+                <div class="o_hc_pl_dashboard__filter is-wide">
+                    <label>Journals</label>
+                    <MultiRecordSelector t-props="journalSelectorProps"/>
+                </div>
+                <div class="o_hc_pl_dashboard__filter is-wide">
+                    <label>Analytic Accounts</label>
+                    <MultiRecordSelector t-props="analyticSelectorProps"/>
+                </div>
+                <div class="o_hc_pl_dashboard__filter">
+                    <label>From</label>
+                    <input class="form-control" type="date" t-model="state.filters.date_from"/>
+                </div>
+                <div class="o_hc_pl_dashboard__filter">
+                    <label>To</label>
+                    <input class="form-control" type="date" t-model="state.filters.date_to"/>
+                </div>
+                <div class="o_hc_pl_dashboard__toggle">
+                    <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" t-model="state.filters.compare_enabled"/>
+                        <span class="form-check-label">Compare with previous period</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="o_hc_pl_dashboard__presets">
+                <button t-att-class="state.filters.period_type === 'month' ? 'btn btn-sm btn-dark' : 'btn btn-sm btn-light'" t-on-click="() => this.applyPreset('month')">
+                    Monthly
+                </button>
+                <button t-att-class="state.filters.period_type === 'quarter' ? 'btn btn-sm btn-dark' : 'btn btn-sm btn-light'" t-on-click="() => this.applyPreset('quarter')">
+                    Quarterly
+                </button>
+                <button t-att-class="state.filters.period_type === 'year' ? 'btn btn-sm btn-dark' : 'btn btn-sm btn-light'" t-on-click="() => this.applyPreset('year')">
+                    Yearly
+                </button>
+                <button t-att-class="state.filters.period_type === 'custom' ? 'btn btn-sm btn-dark' : 'btn btn-sm btn-light'" t-on-click="() => { this.state.filters.period_type = 'custom'; }">
+                    Custom
+                </button>
+            </div>
+
+            <t t-if="state.dashboard and state.dashboard.meta.multi_currency_note">
+                <div class="o_hc_pl_dashboard__notice">
+                    <i class="fa fa-info-circle me-2"/>
+                    <span t-esc="state.dashboard.meta.multi_currency_note"/>
+                </div>
+            </t>
+
+            <t t-if="state.loading">
+                <div class="o_hc_pl_dashboard__skeleton">
+                    <div class="o_hc_pl_dashboard__skeleton-card" t-foreach="[1,2,3,4,5]" t-as="card" t-key="card"/>
+                </div>
+            </t>
+
+            <t t-if="state.dashboard and !state.loading">
+                <div class="o_hc_pl_dashboard__kpis">
+                    <t t-foreach="['revenue', 'expenses', 'net_profit', 'gross_margin_pct', 'operating_profit']" t-as="metricKey" t-key="metricKey">
+                        <div t-att-class="'o_hc_pl_dashboard__kpi ' + cardClass(metricKey)">
+                            <div class="o_hc_pl_dashboard__kpi-label" t-esc="state.dashboard.kpis[metricKey].label"/>
+                            <div class="o_hc_pl_dashboard__kpi-value" t-esc="metricValue(metricKey)"/>
+                            <div t-att-class="'o_hc_pl_dashboard__kpi-delta ' + metricDeltaClass(metricKey)">
+                                <i class="fa fa-line-chart me-1"/>
+                                <span t-esc="metricDelta(metricKey)"/>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+
+                <div class="o_hc_pl_dashboard__grid">
+                    <div class="o_hc_pl_dashboard__panel is-large">
+                        <div class="o_hc_pl_dashboard__panel-head">
+                            <div>
+                                <h3>Profit Trend</h3>
+                                <p>Net profit flow across the selected period</p>
+                            </div>
+                        </div>
+                        <div class="o_hc_pl_dashboard__chart">
+                            <canvas t-ref="trendChart"/>
+                        </div>
+                    </div>
+                    <div class="o_hc_pl_dashboard__panel">
+                        <div class="o_hc_pl_dashboard__panel-head">
+                            <div>
+                                <h3>Revenue vs Expenses</h3>
+                                <p>Operational movement by bucket</p>
+                            </div>
+                        </div>
+                        <div class="o_hc_pl_dashboard__chart">
+                            <canvas t-ref="barChart"/>
+                        </div>
+                    </div>
+                    <div class="o_hc_pl_dashboard__panel">
+                        <div class="o_hc_pl_dashboard__panel-head">
+                            <div>
+                                <h3>Expense Breakdown</h3>
+                                <p>Where the spend is concentrated</p>
+                            </div>
+                        </div>
+                        <div class="o_hc_pl_dashboard__chart">
+                            <canvas t-ref="pieChart"/>
+                        </div>
+                    </div>
+                    <div class="o_hc_pl_dashboard__panel is-large">
+                        <div class="o_hc_pl_dashboard__panel-head">
+                            <div>
+                                <h3>Profit &amp; Loss Statement</h3>
+                                <p>Drill into each major section and account</p>
+                            </div>
+                        </div>
+                        <div class="o_hc_pl_dashboard__statement">
+                            <t t-foreach="state.dashboard.statement.layout" t-as="layoutRow" t-key="layoutRow.key">
+                                <t t-if="layoutRow.type === 'section'">
+                                    <t t-set="section" t-value="sectionsByKey[layoutRow.key]"/>
+                                    <div class="o_hc_pl_dashboard__statement-section">
+                                        <div class="o_hc_pl_dashboard__statement-line is-section">
+                                            <button type="button" class="o_hc_pl_dashboard__statement-toggle" t-on-click="() => this.toggleSection(section.key)">
+                                                <span class="o_hc_pl_dashboard__statement-label">
+                                                    <i t-att-class="this.isExpanded(section.key) ? 'fa fa-chevron-down' : 'fa fa-chevron-right'"/>
+                                                    <span t-esc="section.label"/>
+                                                </span>
+                                            </button>
+                                            <span class="o_hc_pl_dashboard__statement-actions">
+                                                <button type="button" class="btn btn-link btn-sm" t-on-click="() => this.openSection(section.key)">Open Entries</button>
+                                                <strong t-esc="this.formatMoney(section.amount)"/>
+                                            </span>
+                                        </div>
+                                        <div t-if="this.isExpanded(section.key)" class="o_hc_pl_dashboard__statement-children">
+                                            <button type="button" class="o_hc_pl_dashboard__statement-line is-account" t-foreach="section.accounts" t-as="account" t-key="account.id" t-on-click="() => this.openAccount(account.id)">
+                                                <span class="o_hc_pl_dashboard__statement-label">
+                                                    <span class="o_hc_pl_dashboard__account-code" t-if="account.code" t-esc="account.code"/>
+                                                    <span t-esc="account.name"/>
+                                                </span>
+                                                <span t-esc="this.formatMoney(account.amount)"/>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <t t-set="summary" t-value="summaryRowsByKey[layoutRow.key]"/>
+                                    <div class="o_hc_pl_dashboard__statement-line is-summary">
+                                        <span t-esc="summary.label"/>
+                                        <strong t-esc="this.formatMoney(summary.amount)"/>
+                                    </div>
+                                </t>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

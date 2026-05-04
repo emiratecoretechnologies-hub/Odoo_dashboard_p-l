@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="pl_dashboard_pdf">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 style="margin-bottom: 4px;">Profit &amp; Loss Dashboard</h2>
+                        <div style="color: #52616B; margin-bottom: 14px;">
+                            <span t-esc="data['meta']['period_label']"/>
+                            <t t-if="data['meta']['company_names']">
+                                <span> | </span>
+                                <span t-esc="', '.join(data['meta']['company_names'])"/>
+                            </t>
+                        </div>
+
+                        <t t-if="data['meta']['multi_currency_note']">
+                            <div style="padding: 8px 10px; background: #F8FAFC; border: 1px solid #D8E1EA; margin-bottom: 14px;">
+                                <span t-esc="data['meta']['multi_currency_note']"/>
+                            </div>
+                        </t>
+
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 18px;">
+                            <tbody>
+                                <tr>
+                                    <t t-foreach="('revenue', 'expenses', 'net_profit', 'gross_margin_pct', 'operating_profit')" t-as="metric_key">
+                                        <t t-set="metric" t-value="data['kpis'][metric_key]"/>
+                                        <td style="width: 20%; border: 1px solid #D7DFE8; padding: 10px; vertical-align: top;">
+                                            <div style="font-size: 11px; color: #52616B; margin-bottom: 6px;" t-esc="metric['label']"/>
+                                            <div style="font-size: 16px; font-weight: 700;">
+                                                <t t-if="metric['type'] == 'percentage'">
+                                                    <span t-esc="'%.2f%%' % metric['value']"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span t-esc="'%s %.2f' % (data['meta']['currency_name'], metric['value'])"/>
+                                                </t>
+                                            </div>
+                                        </td>
+                                    </t>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                            <thead>
+                                <tr style="background: #EAF0F6;">
+                                    <th style="text-align: left; border: 1px solid #D7DFE8; padding: 8px;">Line</th>
+                                    <th style="text-align: right; border: 1px solid #D7DFE8; padding: 8px;">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="data['statement']['layout']" t-as="layout_row">
+                                    <t t-if="layout_row['type'] == 'section'">
+                                        <t t-set="section" t-value="data['statement']['sections_map'][layout_row['key']]"/>
+                                        <tr style="background: #F8FAFC; font-weight: 700;">
+                                            <td style="border: 1px solid #D7DFE8; padding: 8px;" t-esc="section['label']"/>
+                                            <td style="border: 1px solid #D7DFE8; padding: 8px; text-align: right;" t-esc="'%.2f' % section['amount']"/>
+                                        </tr>
+                                        <tr t-foreach="section['accounts']" t-as="account" t-key="account['id']">
+                                            <td style="border: 1px solid #D7DFE8; padding: 8px 8px 8px 18px;">
+                                                <span t-if="account['code']" t-esc="account['code'] + ' - '"/>
+                                                <span t-esc="account['name']"/>
+                                            </td>
+                                            <td style="border: 1px solid #D7DFE8; padding: 8px; text-align: right;" t-esc="'%.2f' % account['amount']"/>
+                                        </tr>
+                                    </t>
+                                    <t t-else="">
+                                        <t t-set="summary_row" t-value="data['statement']['summary_map'][layout_row['key']]"/>
+                                        <tr style="background: #EEF3F8; font-weight: 700;">
+                                            <td style="border: 1px solid #D7DFE8; padding: 8px;" t-esc="summary_row['label']"/>
+                                            <td style="border: 1px solid #D7DFE8; padding: 8px; text-align: right;" t-esc="'%.2f' % summary_row['amount']"/>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hc_profit_loss_dashboard_wizard_user,hc.profit.loss.dashboard.wizard.user,model_hc_profit_loss_dashboard_wizard,account.group_account_readonly,1,1,1,1

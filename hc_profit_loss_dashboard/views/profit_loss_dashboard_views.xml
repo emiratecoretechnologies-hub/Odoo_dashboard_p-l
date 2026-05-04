@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_profit_loss_dashboard_client" model="ir.actions.client">
+            <field name="name">P&amp;L Dashboard</field>
+            <field name="tag">hc_profit_loss_dashboard.action</field>
+            <field name="path">profit-loss-dashboard</field>
+        </record>
+
+        <menuitem
+            id="menu_profit_loss_dashboard"
+            name="P&amp;L Dashboard"
+            parent="account.menu_finance_reports"
+            action="action_profit_loss_dashboard_client"
+            groups="account.group_account_readonly"
+            sequence="5"
+        />
+    </data>
+</odoo>
